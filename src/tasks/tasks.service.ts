@@ -13,28 +13,8 @@ export class TasksService {
     constructor(@InjectRepository(TaskRepository) private taskRepository: TaskRepository,
                 private utils: Utils) {}
 
-	async getAllTasksWithFilter(filterDto: GetTasksFilterDto): Promise<Task[]> {
-        if (!Object.keys(filterDto).length) {
-            return await this.taskRepository.find();
-        } else if (filterDto.search && filterDto.status) {
-            return await this.taskRepository.find({
-                where: [
-                    {status: filterDto.status},
-                    {title: Like(`%${filterDto.search}%`) }, 
-                    {description: Like(`%${filterDto.search}%`)} 
-                ]
-            });
-        } else if (filterDto.status) {
-            return await this.taskRepository.find({status: filterDto.status});    
-        } else if (filterDto.search) {
-            return await this.taskRepository.find({
-                where: [
-                    {title: Like(`%${filterDto.search}%`) }, 
-                    {description: Like(`%${filterDto.search}%`)}
-                ]
-            });
-        }
-
+	async getTasksWithFilter(filterDto: GetTasksFilterDto): Promise<Task[]> {
+        return this.taskRepository.getTasks(filterDto);
 	}
 	
 	async createNewTask(createTaskDto: CreateTaskDto): Promise<Task> {
