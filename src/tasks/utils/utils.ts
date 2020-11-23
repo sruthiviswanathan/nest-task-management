@@ -1,5 +1,6 @@
-import { NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 
+@Injectable()
 export class Utils {
     findElementById(array: any, id: string) {
         const object = array.find(element => element.id === id);
@@ -15,5 +16,10 @@ export class Utils {
             throw new NotFoundException('Task with ' + id + ' not found');
         }
         return foundIndex;
+    }
+
+    taskNotFoundErrorMessage(id: number) {
+        const errorMessage = 'Task with ' + id + ' not found';
+        return errorMessage;
     }
 }
