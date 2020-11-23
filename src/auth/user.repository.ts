@@ -3,15 +3,18 @@ import { EntityRepository, Repository } from "typeorm";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { User } from "./user.entity";
 import { ErrorMessages, ErrorCodes } from './errors/errors.enum';
+import * as bcrypt from 'bcrypt';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
 
     async signUp(authCredentialsDto: AuthCredentialsDto): Promise<User> {
         const { username, password } = authCredentialsDto;
+        const salt: string = await bcrypt.genSalt();
         const user = new User();
         user.username = username;
-        user.password = password;
+        user.password = await this.hashPassword(password, salt);
+        user.salt = salt;
         try {
             await user.save();
         } catch(error) {
@@ -22,5 +25,16 @@ export class UserRepository extends Repository<User> {
             }
         }
         return user;
+    }
+
+    private async hashPassword(password: string, salt: string): Promise<string> {
+        return await bcrypt.hash(password, salt);
+    }
+
+    async validateUserPassword(authCredentialsDto: AuthCredentialsDto): Promise<boolean> {
+        const {username, password} = authCredentialsDto;
+        const user = await this.findOne({username});
+        const isValid = await user.validatePassword(password);
+        return isValid;
     }
 }

@@ -1,7 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { ErrorMessages } from './errors/errors.enum';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 
@@ -13,12 +12,7 @@ export class AuthService {
         return this.userRepository.signUp(authCredentialsDto);
     }
 
-    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<User> {
-        const { username, password } = authCredentialsDto;
-        const user = await this.userRepository.findOne({username, password});
-        if (!user) {
-            throw new UnauthorizedException(ErrorMessages.USER_NOT_FOUND_ERR_MESSAGE);
-        }
-        return user;
+    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<any> {
+        return this.userRepository.validateUserPassword(authCredentialsDto);
     }
 }
